@@ -27,13 +27,67 @@
   const indexWithPromises = () =>
   {
     return {
-      open: () =>
+      open: (dbName) =>
       {
-        return true;
+        return indexedDB.open(dbName);
       }
     };
   };
-  console.log(indexWithPromises);
-  console.log(indexWithPromises());
-  console.log(indexWithPromises().open());
+  let db;
+  let req = indexedDB.open('customer', 1);
+  req.onsuccess = (evt) =>
+  {
+    db = req.result;
+    console.log(db.transaction);
+    console.log(req.result);
+    console.log('openDb DONE');
+    let tx = db.transaction(["customers"], "readwrite");
+    tx.oncomplete = (event) =>
+    {
+      console.log('transaction complete');
+    };
+    tx.onerror = (error) =>
+    {
+      console.log('transaction error');
+      console.trace(error);
+    };
+    let objectStore = tx.objectStore('customers');
+    let request = objectStore.add();
+    request.onsuccess = (event) =>
+    {
+      console.log(event);
+      console.log('db successful save???');
+    };
+    // saveBob();
+  };
+  req.onerror = (evt) =>
+  {
+    console.error('openDb error:', evt.target.errorCode);
+  };
+  function getObjectStore(store_name, mode) {
+    var tx = db.transaction(store_name, mode);
+    return tx.objectStore(store_name);
+  }
+  function saveBob()
+  {
+    let obj = { name: 'Bob', year: 999 };
+    let store = getObjectStore('customer', 'readwrite');
+    let req;
+    try {
+      req = store.add(obj);
+    } catch (e) {
+      console.log('error');
+      console.log(e);
+      throw e;
+    }
+    req.onsuccess = function (evt) {
+      console.log('Insertion in DB successful');
+      displayActionSuccess();
+      displayPubList(store);
+    };
+    req.onerror = function() {
+      console.error('addPublication error', this.error);
+      displayActionFailure(this.error);
+    };
+  }
 </script>
