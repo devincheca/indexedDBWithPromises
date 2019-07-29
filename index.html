@@ -24,5 +24,16 @@
   </body>
 </html>
 <script>
-  console.log('test');
+  const indexWithPromises = () =>
+  {
+    return {
+      open: () =>
+      {
+        return true;
+      }
+    };
+  };
+  console.log(indexWithPromises);
+  console.log(indexWithPromises());
+  console.log(indexWithPromises().open());
 </script>
